@@ -1,10 +1,13 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <vector>
+#include <algorithm>
+
 #include "Rectangle.h"
 #include "Circle.h"
 #include "Functions.h"
 #include "Ellipse.h"
-#include "Container.h"
+#include "Composite.h"
 
 int main()
 {
@@ -24,16 +27,18 @@ int main()
 		shape = nullptr;
 	}
 
+	Composite container;
+
+
 	// Pointer to the activated shape.
 	sf::Shape* curr_shape = nullptr;
 
 	// Show or hide tail.
 	bool show_tail = false;
 
-	bool is_aggregate = false;
-
 	// For switching color.
 	int color_switch = 1;
+	int transparecy_switch = 1;
 
 	while (window.isOpen())
 	{
@@ -142,46 +147,34 @@ int main()
 				switch (color_switch)
 				{
 				case 1:
-					if (!is_aggregate)
-						curr_shape->setFillColor(sf::Color::White);
-					else
-						change_agregator_color(shapes, sf::Color::White);
+					curr_shape->setFillColor(sf::Color::White);
+					container.setFillColor(sf::Color::White);
 					color_switch++;
 					break;
 				case 2:
-					if (!is_aggregate)
-						curr_shape->setFillColor(sf::Color::Green);
-					else
-						change_agregator_color(shapes, sf::Color::Green);
+					curr_shape->setFillColor(sf::Color::Blue);
+					container.setFillColor(sf::Color::Blue);
 					color_switch++;
 					break;
 				case 3:
-					if (!is_aggregate)
-						curr_shape->setFillColor(sf::Color::Red);
-					else
-						change_agregator_color(shapes, sf::Color::Red);
+					curr_shape->setFillColor(sf::Color::Cyan);
+					container.setFillColor(sf::Color::Cyan);
 					color_switch++;
 					break;
 				case 4:
-					if (!is_aggregate)
-						curr_shape->setFillColor(sf::Color::Magenta);
-					else
-						change_agregator_color(shapes, sf::Color::Magenta);
+					curr_shape->setFillColor(sf::Color::Green);
+					container.setFillColor(sf::Color::Green);
 					color_switch++;
 					break;
 				case 5:
-					if (!is_aggregate)
-						curr_shape->setFillColor(sf::Color::Cyan);
-					else
-						change_agregator_color(shapes, sf::Color::Cyan);
+					curr_shape->setFillColor(sf::Color::Magenta);
+					container.setFillColor(sf::Color::Magenta);
 					color_switch++;
 					break;
 				default:
 					color_switch = 1;
-					if (!is_aggregate)
-						curr_shape->setFillColor(sf::Color::White);
-					else
-						change_agregator_color(shapes, sf::Color::White);
+					curr_shape->setFillColor(sf::Color::Red);
+					container.setFillColor(sf::Color::Red);
 					color_switch++;
 					break;
 				}
@@ -190,18 +183,24 @@ int main()
 			// Make invisible.
 			else if (sf::Mouse::isButtonPressed(sf::Mouse::Middle))
 			{
-				if (!is_aggregate)
+				static sf::Color temp;
+
+				curr_shape = select_shape(shapes, window);
+
+				if (container.getFillColor() == sf::Color::Transparent)
 				{
-					curr_shape = select_shape(shapes, window);
-					make_invisible(curr_shape, window);
+					container.setFillColor(sf::Color::Magenta);
+				}
+				if (std::count(container.get_shapes()->begin(),
+					container.get_shapes()->end(),
+					curr_shape) && container.getFillColor() != sf::Color::Transparent)
+				{
+					temp = container.getFillColor();
+					container.setFillColor(sf::Color::Transparent);
 				}
 				else
-				{
-					for (auto& shape :shapes)
-					{
-						make_invisible(shape, window);
-					}
-				}
+					if (curr_shape)
+						make_invisible(*curr_shape, window);
 			}
 
 			// Show tail when move.
@@ -212,52 +211,52 @@ int main()
 				else
 					show_tail = false;
 			}
+
+			// Add shape to the container.
 			else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::G)
 			{
-				if (!is_aggregate)
-					is_aggregate = true;
+				if (!std::count(container.get_shapes()->begin(),
+					container.get_shapes()->end(),
+					curr_shape))
+				{
+					container.get_shapes()->push_back(curr_shape);
+					std::cout << "Shape added!" << std::endl;
+				}
 				else
-					is_aggregate = false;
+				{
+					container.get_shapes()->erase(std::remove(container.get_shapes()->begin(),
+						container.get_shapes()->end(), curr_shape), container.get_shapes()->end());
+					std::cout << "Shape removed" << std::endl;
+				}
 			}
+
 		}
-
-
-		//if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
-		//{
-		//	for (auto& shape : shapes)
-		//		shape->move(-1.5f, 0.0f);
-		//}
-		//if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
-		//{
-		//	for (auto& shape : shapes)
-		//		shape->move(1.5f, 0.0f);
-		//}
-		//if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
-		//{
-		//	for (auto& shape : shapes)
-		//		shape->move(0.0f, -1.5f);
-		//}
-		//if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
-		//{
-		//	for (auto& shape : shapes)
-		//		shape->move(0.0f, 1.5f);
-		//}
-
 
 		// Set current shape. Press MLK.
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 			curr_shape = select_shape(shapes, window);
 
 		// Enable keyboard move for current shape.
-		if (is_aggregate)
+		if (curr_shape)
+			keyboard_move(*curr_shape, window);
+
+		// Enable keyboard move for the container.
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
 		{
-			for (auto& shape : shapes)
-			{
-				keyboard_move(shape, window);
-			}
+			container.move(-1.5f, 0.0f);
 		}
-		else
-			keyboard_move(curr_shape, window);
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
+		{
+			container.move(1.5f, 0.0f);
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
+		{
+			container.move(0.0f, -1.5f);
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
+		{
+			container.move(0.0f, 1.5f);
+		}
 
 		// Keep moving after reaching window's bound.
 		for (auto& shape : shapes)
@@ -280,23 +279,18 @@ int main()
 		// Move to the clicked point.
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
 		{
-			if (curr_shape && !!is_aggregate)
+			if (curr_shape)
 			{
 				sf::Vector2f total_movement(sf::Mouse::getPosition((window)).x - curr_shape->getPosition().x,
 					sf::Mouse::getPosition((window)).y - curr_shape->getPosition().y);
 				curr_shape->move(total_movement * (1.0f / 60.0f));
 			}
-			else
+
+			else if (container.get_shapes()->capacity() != 0)
 			{
-				for (auto& shape : shapes)
-				{
-					if (shape)
-					{
-						sf::Vector2f total_movement(sf::Mouse::getPosition((window)).x - shape->getPosition().x,
-							sf::Mouse::getPosition((window)).y - shape->getPosition().y);
-						shape->move(total_movement * (1.0f / 60.0f));
-					}
-				}
+				sf::Vector2f total_movement(sf::Mouse::getPosition((window)).x - container.getPosition().x,
+					sf::Mouse::getPosition((window)).y - container.getPosition().y);
+				container.move(total_movement * (1.0f / 60.0f));
 			}
 		}
 

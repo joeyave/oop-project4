@@ -32,26 +32,23 @@ inline void change_agregator_color(sf::Shape* shapes[4], sf::Color c)
 	}
 }
 
-inline void keyboard_move(sf::Shape* body, sf::RenderWindow& wnd)
+inline void keyboard_move(sf::Shape& body, sf::RenderWindow& wnd)
 {
-	if (body)
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
 	{
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
-		{
-			body->move(-1.5f, 0.0f);
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
-		{
-			body->move(1.5f, 0.0f);
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
-		{
-			body->move(0.0f, -1.5f);
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
-		{
-			body->move(0.0f, 1.5f);
-		}
+		body.move(-1.5f, 0.0f);
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
+	{
+		body.move(1.5f, 0.0f);
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
+	{
+		body.move(0.0f, -1.5f);
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
+	{
+		body.move(0.0f, 1.5f);
 	}
 }
 
@@ -69,20 +66,18 @@ inline void mouse_move(sf::Shape* body, sf::RenderWindow& wnd)
 	}
 }
 
-inline void make_invisible(sf::Shape* body, sf::RenderWindow& wnd)
+inline void make_invisible(sf::Shape& body, sf::RenderWindow& wnd)
 {
 	static sf::Color temp;
-	if (body)
+
+	if (body.getFillColor() != sf::Color::Transparent)
 	{
-		if (body->getFillColor() != sf::Color::Transparent)
-		{
-			temp = body->getFillColor();
-			body->setFillColor(sf::Color::Transparent);
-		}
-		else
-		{
-			body->setFillColor(temp);
-		}
+		temp = body.getFillColor();
+		body.setFillColor(sf::Color::Transparent);
+	}
+	else
+	{
+		body.setFillColor(temp);
 	}
 }
 
