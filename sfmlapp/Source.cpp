@@ -187,16 +187,17 @@ int main()
 
 				curr_shape = select_shape(shapes, window);
 
-				if (container.getFillColor() == sf::Color::Transparent)
+				if (container.get_shapes()->capacity() > 0)
 				{
-					container.setFillColor(sf::Color::Magenta);
-				}
-				if (std::count(container.get_shapes()->begin(),
-					container.get_shapes()->end(),
-					curr_shape) && container.getFillColor() != sf::Color::Transparent)
-				{
-					temp = container.getFillColor();
-					container.setFillColor(sf::Color::Transparent);
+					if (container.getFillColor() != sf::Color::Transparent)
+					{
+						temp = container.getFillColor();
+						container.setFillColor(sf::Color::Transparent);
+					}
+					else
+					{
+						container.setFillColor(temp);
+					}
 				}
 				else
 					if (curr_shape)
