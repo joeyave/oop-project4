@@ -139,10 +139,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Container.cpp" />
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Circle.h" />
+    <ClInclude Include="Container.h" />
     <ClInclude Include="Ellipse.h" />
     <ClInclude Include="Functions.h" />
     <ClInclude Include="Rectangle.h" />

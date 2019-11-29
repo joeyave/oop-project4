@@ -21,6 +21,17 @@ inline void window_boud_move(sf::Shape& body, sf::RenderWindow& wnd)
 	}
 }
 
+inline void change_agregator_color(sf::Shape* shapes[4], sf::Color c)
+{
+	for (int i = 0; i < 4; i++)
+	{
+		if (shapes[i])
+		{
+			shapes[i]->setFillColor(c);
+		}
+	}
+}
+
 inline void keyboard_move(sf::Shape* body, sf::RenderWindow& wnd)
 {
 	if (body)
