@@ -1,12 +1,28 @@
 #pragma once
-#include <SFML/Graphics.hpp>
+//#include <SFML/Graphics.hpp>
+#include "Shape.hpp"
 
 class Ellipse : public sf::Shape
 {
 public:
-	Ellipse(const sf::Vector2f& rds = sf::Vector2f(0.f, 0.f))
+	Ellipse()
+	{
+		setToDefault();
+		update();
+	}
+	
+	Ellipse(const sf::Vector2f& rds)
 	{
 		radius = rds;
+		update();
+	}
+
+	void setToDefault()
+	{
+		setRadius(sf::Vector2f(150.0f, 100.0f));
+		setFillColor(sf::Color::Yellow);
+		setPosition(200, 1000);
+		setOrigin(20, 200);
 		update();
 	}
 
@@ -25,7 +41,7 @@ public:
 	{
 		return 30;
 	}
-
+	
 	virtual sf::Vector2f getPoint(std::size_t index) const
 	{
 		static const float pi = 3.141592654f;

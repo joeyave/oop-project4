@@ -1,15 +1,31 @@
 #pragma once
-#include <SFML/Graphics.hpp>
+//#include <SFML/Graphics.hpp>
+#include "Shape.hpp"
 
 class Rectangle : public sf::Shape
 {
 public:
-	Rectangle(const sf::Vector2f& sz = sf::Vector2f(0.0f, 0.0f))
+	Rectangle()
+	{
+		setToDefault();
+		update();
+	}
+	
+	Rectangle(const sf::Vector2f& sz)
 	{
 		setSize(sz);
 		update();
 	}
 
+	void setToDefault()
+	{
+		setSize(sf::Vector2f(100, 100));
+		setFillColor(sf::Color::Blue);
+		setPosition(150, 150);
+		setOrigin(100.0f / 2, 100.0f / 2);
+
+		update();
+	}
 	void setSize(const sf::Vector2f& sz)
 	{
 		size = sz;
@@ -20,7 +36,7 @@ public:
 	{
 		return size;
 	}
-
+	
 	virtual std::size_t getPointCount() const
 	{
 		return 4;

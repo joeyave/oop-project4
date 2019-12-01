@@ -1,13 +1,15 @@
-#include <SFML/Graphics.hpp>
+
 #include <iostream>
 #include <vector>
 #include <algorithm>
 
 #include "Rectangle.h"
 #include "Circle.h"
-#include "Functions.h"
 #include "Ellipse.h"
 #include "Composite.h"
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Window/Event.hpp>
+#include "Line.h"
 
 int main()
 {
@@ -16,29 +18,27 @@ int main()
 
 	//My shapes.
 	Rectangle my_rect;
-	Rectangle my_line;
+	Line my_line;
 	Circle my_circle;
 	Ellipse my_ellipse;
 
+	Composite container;
+
 	// Shapes array.
+	std::vector<sf::Shape*> vshapes;
+
 	sf::Shape* shapes[4];
 	for (auto& shape : shapes)
 	{
 		shape = nullptr;
 	}
 
-	Composite container;
-
-
 	// Pointer to the activated shape.
-	sf::Shape* curr_shape = nullptr;
+	sf::Shape* current_shape = nullptr;
 
-	// Show or hide tail.
-	bool show_tail = false;
-
-	// For switching color.
+	bool show_tail_switch = false;
+	bool transparecy_switch = false;
 	int color_switch = 1;
-	int transparecy_switch = 1;
 
 	while (window.isOpen())
 	{
@@ -48,262 +48,313 @@ int main()
 			if (event.type == sf::Event::Closed)
 				window.close();
 
+			// Set current shape. Press MLK.
+			else if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
+			{
+				sf::Vector2f mouse_position;
+				mouse_position.x = sf::Mouse::getPosition(window).x;
+				mouse_position.y = sf::Mouse::getPosition(window).y;
+
+				for (auto& shape : vshapes)
+				{
+					if (shape->selectedWithMouse(window))
+					{
+						{
+							std::cout << "single shape selected" << std::endl;
+							current_shape = shape;
+							break;
+						}
+					}
+					else
+					{
+						std::cout << "nothing is selected" << std::endl;
+						current_shape = nullptr;
+					}
+				}
+			}
+
 			// Visualize of remove shapes.
 			else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Num1)
 			{
-				if (shapes[0] == nullptr)
+				if (!std::count(vshapes.begin(), vshapes.end(), &my_rect))
 				{
-					my_rect.setSize(sf::Vector2f(100, 100));
-					my_rect.setFillColor(sf::Color::Blue);
-					my_rect.setPosition(150, 150);
-					my_rect.setOrigin(100 / 2, 100 / 2);
-					shapes[0] = &my_rect;
+					vshapes.push_back(&my_rect);
 				}
 				else
 				{
-					shapes[0] = nullptr;
+					vshapes.erase(std::remove(vshapes.begin(),
+						vshapes.end(), &my_rect), vshapes.end());
 				}
 			}
 			else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Num2)
 			{
-				if (shapes[1] == nullptr)
+				if (!std::count(vshapes.begin(), vshapes.end(), &my_line))
 				{
-					my_line.setSize(sf::Vector2f(250.0f, 10.0f));
-					my_line.setFillColor(sf::Color::Cyan);
-					my_line.setPosition(1700, 100);
-					my_line.setOrigin(150 / 2, 2 / 2);
-					shapes[1] = &my_line;
+					vshapes.push_back(&my_line);
 				}
 				else
-					shapes[1] = nullptr;
+				{
+					vshapes.erase(std::remove(vshapes.begin(),
+						vshapes.end(), &my_line), vshapes.end());
+				}
 			}
 			else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Num3)
 			{
-				if (shapes[2] == nullptr)
+				if (!std::count(vshapes.begin(), vshapes.end(), &my_ellipse))
 				{
-					my_ellipse.setRadius(sf::Vector2f(150.0f, 100.0f));
-					my_ellipse.setFillColor(sf::Color::Yellow);
-					my_ellipse.setPosition(200, 1000);
-					my_ellipse.setOrigin(20, 200);
-					shapes[2] = &my_ellipse;
+					vshapes.push_back(&my_ellipse);
 				}
 				else
-					shapes[2] = nullptr;
+				{
+					vshapes.erase(std::remove(vshapes.begin(),
+						vshapes.end(), &my_ellipse), vshapes.end());
+				}
 			}
 			else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Num4)
 			{
-				if (shapes[3] == nullptr)
+				if (!std::count(vshapes.begin(), vshapes.end(), &my_circle))
 				{
-					my_circle.setRadius(200.0f);
-					my_circle.setFillColor(sf::Color::Magenta);
-					my_circle.setPosition(1700, 760);
-					my_circle.setOrigin(200, 200);
-					shapes[3] = &my_circle;
+					vshapes.push_back(&my_circle);
 				}
 				else
-					shapes[3] = nullptr;
+				{
+					vshapes.erase(std::remove(vshapes.begin(),
+						vshapes.end(), &my_circle), vshapes.end());
+				}
 			}
 
 			// Restore shape to default settings.
 			else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::R)
 			{
-				if ((curr_shape == dynamic_cast<sf::Shape*>(&my_rect)))
+				if (current_shape == dynamic_cast<sf::Shape*>(&my_rect))
 				{
-					my_rect.setSize(sf::Vector2f(100, 100));
-					my_rect.setScale(1.0f, 1.0f);
-					my_rect.setFillColor(sf::Color::Blue);
-					my_rect.setPosition(150, 150);
-					my_rect.setOrigin(100 / 2, 100 / 2);
+					my_rect.setToDefault();
 				}
-				if ((curr_shape == dynamic_cast<sf::Shape*>(&my_line)))
+				if (current_shape == dynamic_cast<sf::Shape*>(&my_line))
 				{
-					my_line.setSize(sf::Vector2f(250.0f, 10.0f));
-					my_line.setScale(1.0f, 1.0f);
-					my_line.setFillColor(sf::Color::Cyan);
-					my_line.setPosition(1700, 100);
-					my_line.setOrigin(150 / 2, 2 / 2);
+					my_line.setToDefault();
 				}
-				if ((curr_shape == dynamic_cast<sf::Shape*>(&my_ellipse)))
+				if (current_shape == dynamic_cast<sf::Shape*>(&my_ellipse))
 				{
-					my_ellipse.setRadius(sf::Vector2f(150.0f, 100.0f));
-					my_ellipse.setScale(1.0f, 1.0f);
-					my_ellipse.setFillColor(sf::Color::Yellow);
-					my_ellipse.setPosition(200, 1000);
-					my_ellipse.setOrigin(20, 200);
+					my_ellipse.setToDefault();
 				}
-				if ((curr_shape == dynamic_cast<sf::Shape*>(&my_circle)))
+				if (current_shape == dynamic_cast<sf::Shape*>(&my_circle))
 				{
-					my_circle.setRadius(200.0f);
-					my_circle.setScale(1.0f, 1.0f);
-					my_circle.setFillColor(sf::Color::Magenta);
-					my_circle.setPosition(1700, 760);
-					my_circle.setOrigin(200, 200);
+					my_circle.setToDefault();
 				}
 			}
 
 			// Change colour.
 			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::C))
 			{
+				sf::Color color = current_shape->getFillColor();
+
 				switch (color_switch)
 				{
 				case 1:
-					curr_shape->setFillColor(sf::Color::White);
+					current_shape->setFillColor(sf::Color::White);
 					container.setFillColor(sf::Color::White);
 					color_switch++;
 					break;
 				case 2:
-					curr_shape->setFillColor(sf::Color::Blue);
+					current_shape->setFillColor(sf::Color::Blue);
 					container.setFillColor(sf::Color::Blue);
 					color_switch++;
 					break;
 				case 3:
-					curr_shape->setFillColor(sf::Color::Cyan);
+					current_shape->setFillColor(sf::Color::Cyan);
 					container.setFillColor(sf::Color::Cyan);
 					color_switch++;
 					break;
 				case 4:
-					curr_shape->setFillColor(sf::Color::Green);
+					current_shape->setFillColor(sf::Color::Green);
 					container.setFillColor(sf::Color::Green);
 					color_switch++;
 					break;
 				case 5:
-					curr_shape->setFillColor(sf::Color::Magenta);
+					current_shape->setFillColor(sf::Color::Magenta);
 					container.setFillColor(sf::Color::Magenta);
 					color_switch++;
 					break;
 				default:
 					color_switch = 1;
-					curr_shape->setFillColor(sf::Color::Red);
-					container.setFillColor(sf::Color::Red);
+					current_shape->setFillColor(color);
+					container.setFillColor(color);
 					color_switch++;
 					break;
 				}
 			}
 
 			// Make invisible.
-			else if (sf::Mouse::isButtonPressed(sf::Mouse::Middle))
+			else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::I)
 			{
-				static sf::Color temp;
-
-				curr_shape = select_shape(shapes, window);
-
-				if (container.get_shapes()->capacity() > 0)
-				{
-					if (container.getFillColor() != sf::Color::Transparent)
+				if (current_shape)
+					if (!transparecy_switch)
 					{
-						temp = container.getFillColor();
-						container.setFillColor(sf::Color::Transparent);
+						if (std::count(container.get_shapes()->begin(),
+							container.get_shapes()->end(), current_shape))
+						{
+							container.setAlpha(0);
+						}
+						else
+						{
+							sf::Color color = current_shape->getFillColor();
+							color.a = 0;
+							current_shape->setFillColor(color);
+						}
+
+						transparecy_switch = true;
 					}
 					else
 					{
-						container.setFillColor(temp);
+						if (std::count(container.get_shapes()->begin(),
+							container.get_shapes()->end(), current_shape))
+						{
+							// make container visible
+							container.setAlpha(255);
+
+						}
+						else
+						{
+							sf::Color color = current_shape->getFillColor();
+							color.a = 255;
+							current_shape->setFillColor(color);
+						}
+						transparecy_switch = false;
 					}
-				}
-				else
-					if (curr_shape)
-						make_invisible(*curr_shape, window);
 			}
 
 			// Show tail when move.
 			else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::T)
 			{
-				if (show_tail == false)
-					show_tail = true;
+				if (show_tail_switch == false)
+					show_tail_switch = true;
 				else
-					show_tail = false;
+					show_tail_switch = false;
 			}
 
 			// Add shape to the container.
 			else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::G)
 			{
+				// If container doesn't contain selected shape
 				if (!std::count(container.get_shapes()->begin(),
 					container.get_shapes()->end(),
-					curr_shape))
+					current_shape))
 				{
-					container.get_shapes()->push_back(curr_shape);
-					std::cout << "Shape added!" << std::endl;
+					// add shape to the container.
+					container.get_shapes()->push_back(current_shape);
+					std::cout << "Shape added to the container!" << std::endl;
+
+					// If shapes container doesn't contain container
+					if(!std::count(vshapes.begin(), vshapes.end(), &container))
+					{
+						// add container to the shapes vector.
+						vshapes.push_back(&container);
+						std::cout << "container added to the shapes vector" << std::endl;
+					}
+					
+					// Remove shape from the shapes vector.
+					vshapes.erase(std::remove(vshapes.begin(),
+						vshapes.end(), current_shape), vshapes.end());
+					std::cout << "shape removed from the shapes vector" << std::endl;
 				}
 				else
 				{
+					// Remove selected shape from the container.
 					container.get_shapes()->erase(std::remove(container.get_shapes()->begin(),
-						container.get_shapes()->end(), curr_shape), container.get_shapes()->end());
-					std::cout << "Shape removed" << std::endl;
+						container.get_shapes()->end(), current_shape), container.get_shapes()->end());
+					std::cout << "Shape removed from the container, added to the shapes vector" << std::endl;
+
+					// Add selected shape to the shapes vector.
+					vshapes.push_back(current_shape);
+
+					if (container.get_shapes()->empty())
+					{
+						vshapes.erase(std::remove(vshapes.begin(),
+							vshapes.end(), &container), vshapes.end());
+						std::cout << "container removed from the shapes vector" << std::endl;
+					}
 				}
 			}
-
 		}
-
-		// Set current shape. Press MLK.
-		if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-			curr_shape = select_shape(shapes, window);
 
 		// Enable keyboard move for current shape.
-		if (curr_shape)
-			keyboard_move(*curr_shape, window);
-
-		// Enable keyboard move for the container.
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
+		if (current_shape)
 		{
-			container.move(-1.5f, 0.0f);
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
-		{
-			container.move(1.5f, 0.0f);
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
-		{
-			container.move(0.0f, -1.5f);
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
-		{
-			container.move(0.0f, 1.5f);
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
+			{
+				current_shape->move(-1.5f, 0.0f);
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
+			{
+				current_shape->move(1.5f, 0.0f);
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
+			{
+				current_shape->move(0.0f, -1.5f);
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
+			{
+				current_shape->move(0.0f, 1.5f);
+			}
 		}
 
 		// Keep moving after reaching window's bound.
 		for (auto& shape : shapes)
 		{
 			if (shape)
-				window_boud_move(*shape, window);
+			{
+				if (shape->getPosition().x < 0)
+				{
+					shape->setPosition(sf::Vector2f(window.getSize().x, shape->getPosition().y));
+				}
+				if (shape->getPosition().x > window.getSize().x)
+				{
+					shape->setPosition(sf::Vector2f(0.0f, shape->getPosition().y));
+				}
+				if (shape->getPosition().y > window.getSize().y)
+				{
+					shape->setPosition(sf::Vector2f(shape->getPosition().x, 0.0f));
+				}
+				if (shape->getPosition().y < 0)
+				{
+					shape->setPosition(sf::Vector2f(shape->getPosition().x, window.getSize().y));
+				}
+			}
 		}
 
-		// Deformate when collide.
-		for (int i = 0; i < 4; i++)
+		for (auto& shape : shapes)
 		{
-			for (int j = 0; j < 4; j++)
+			if (current_shape && shape && current_shape != shape &&
+				current_shape->getGlobalBounds().intersects(shape->getGlobalBounds()))
 			{
-				if (j == i || !shapes[i] || !shapes[j])
-					continue;
-				collision_deformation(shapes[i], shapes[j]);
+				shape->setScale(1.5f, 1.5f);
 			}
 		}
 
 		// Move to the clicked point.
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
 		{
-			if (curr_shape)
+			if (current_shape)
 			{
-				sf::Vector2f total_movement(sf::Mouse::getPosition((window)).x - curr_shape->getPosition().x,
-					sf::Mouse::getPosition((window)).y - curr_shape->getPosition().y);
-				curr_shape->move(total_movement * (1.0f / 60.0f));
+				sf::Vector2f total_movement(sf::Mouse::getPosition((window)).x - current_shape->getPosition().x,
+					sf::Mouse::getPosition((window)).y - current_shape->getPosition().y);
+				current_shape->move(total_movement * (1.0f / 60.0f));
 			}
 
-			else if (container.get_shapes()->capacity() != 0)
-			{
-				sf::Vector2f total_movement(sf::Mouse::getPosition((window)).x - container.getPosition().x,
-					sf::Mouse::getPosition((window)).y - container.getPosition().y);
-				container.move(total_movement * (1.0f / 60.0f));
-			}
+			//else if (container.get_shapes()->capacity() != 0)
+			//{
+			//	sf::Vector2f total_movement(sf::Mouse::getPosition((window)).x - container.getPosition().x,
+			//		sf::Mouse::getPosition((window)).y - container.getPosition().y);
+			//	container.move(total_movement * (1.0f / 60.0f));
+			//}
 		}
 
-		if (show_tail == false)
+		if (show_tail_switch == false)
 			window.clear();
 
-		// Draw here:
-		for (int i = 0; i < 4; i++)
-		{
-			if (shapes[i])
-				window.draw(*shapes[i]);
-		}
+		for (auto& shape : vshapes)
+			window.draw(*shape);
 
 		window.display();
 	}

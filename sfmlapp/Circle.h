@@ -1,13 +1,30 @@
 #pragma once
-#include <SFML/Graphics.hpp>
+//#include <SFML/Graphics.hpp>
+#include "Shape.hpp"
 
 class Circle : public sf::Shape
 {
 public:
-	Circle(const float rds = float(0.0f), const std::size_t pts = 30)
+	Circle(const std::size_t pts = 30)
+	{
+		points = pts;
+		setToDefault();
+		update();
+	}
+	
+	Circle(const float rds, const std::size_t pts = 30)
 	{
 		radius = rds;
 		points = pts;
+		update();
+	}
+
+	void setToDefault()
+	{
+		setRadius(200.0f);
+		setFillColor(sf::Color::Magenta);
+		setPosition(1700, 760);
+		setOrigin(200, 200);
 		update();
 	}
 
@@ -37,7 +54,7 @@ public:
 
 		return { radius + x, radius + y };
 	}
-
+	
 private:
 	float radius;
 	std::size_t points;
