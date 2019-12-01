@@ -239,20 +239,20 @@ int main()
 				// If container doesn't contain selected shape
 				if (!std::count(container.get_shapes()->begin(),
 					container.get_shapes()->end(),
-					current_shape))
+					current_shape) && dynamic_cast<Composite*>(current_shape) != &container)
 				{
 					// add shape to the container.
 					container.get_shapes()->push_back(current_shape);
 					std::cout << "Shape added to the container!" << std::endl;
 
 					// If shapes container doesn't contain container
-					if(!std::count(vshapes.begin(), vshapes.end(), &container))
+					if (!std::count(vshapes.begin(), vshapes.end(), &container))
 					{
 						// add container to the shapes vector.
 						vshapes.push_back(&container);
 						std::cout << "container added to the shapes vector" << std::endl;
 					}
-					
+
 					// Remove shape from the shapes vector.
 					vshapes.erase(std::remove(vshapes.begin(),
 						vshapes.end(), current_shape), vshapes.end());
@@ -260,20 +260,38 @@ int main()
 				}
 				else
 				{
-					// Remove selected shape from the container.
-					container.get_shapes()->erase(std::remove(container.get_shapes()->begin(),
-						container.get_shapes()->end(), current_shape), container.get_shapes()->end());
-					std::cout << "Shape removed from the container, added to the shapes vector" << std::endl;
+					// Remove and clean container. Push it's elements to the shapes vector.
+					//if (!container.get_shapes()->empty())
+					//	while (sf::Shape* s = container.get_shapes()->back())
+					//	{
+					//		vshapes.push_back(s);
+					//		container.get_shapes()->pop_back();
+					//	}
 
-					// Add selected shape to the shapes vector.
-					vshapes.push_back(current_shape);
-
-					if (container.get_shapes()->empty())
+					for (auto& shape : *container.get_shapes())
 					{
-						vshapes.erase(std::remove(vshapes.begin(),
-							vshapes.end(), &container), vshapes.end());
-						std::cout << "container removed from the shapes vector" << std::endl;
+						vshapes.push_back(shape);
 					}
+					container.get_shapes()->clear();
+					
+					vshapes.erase(std::remove(vshapes.begin(),
+						vshapes.end(), &container), vshapes.end());
+					std::cout << "container removed from the shapes vector" << std::endl;
+
+					//// Remove selected shape from the container.
+					//container.get_shapes()->erase(std::remove(container.get_shapes()->begin(),
+					//	container.get_shapes()->end(), current_shape), container.get_shapes()->end());
+					//std::cout << "Shape removed from the container, added to the shapes vector" << std::endl;
+
+					//// Add selected shape to the shapes vector.
+					//vshapes.push_back(current_shape);
+
+					//if (container.get_shapes()->empty())
+					//{
+					//	vshapes.erase(std::remove(vshapes.begin(),
+					//		vshapes.end(), &container), vshapes.end());
+					//	std::cout << "container removed from the shapes vector" << std::endl;
+					//}
 				}
 			}
 		}
