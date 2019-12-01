@@ -54,17 +54,50 @@ public:
 			shape->move(offsetX, offsetY);
 	}
 
-	void move(const sf::Vector2f& offset)
+	void move(const sf::Vector2f& offset) override
 	{
 		for (auto& shape : shapes)
 			shape->move(offset);
 	}
 
-	const sf::Vector2f& getPosition() const
+	void boundMoveActivate(sf::RenderWindow& wnd) override
+	{
+		for (auto& shape : shapes)
+		{
+			if (shape->getPosition().x < 0)
+			{
+				shape->setPosition(sf::Vector2f(wnd.getSize().x, shape->getPosition().y));
+			}
+			if (shape->getPosition().x > wnd.getSize().x)
+			{
+				shape->setPosition(sf::Vector2f(0.0f, shape->getPosition().y));
+			}
+			if (shape->getPosition().y > wnd.getSize().y)
+			{
+				shape->setPosition(sf::Vector2f(shape->getPosition().x, 0.0f));
+			}
+			if (shape->getPosition().y < 0)
+			{
+				shape->setPosition(sf::Vector2f(shape->getPosition().x, wnd.getSize().y));
+			}
+		}
+	}
+
+	const sf::Vector2f& getPosition() const override
 	{
 		return shapes[0]->getPosition();
 	}
 
+	bool intersectsWith(sf::Shape* shp, sf::RenderWindow& wnd) override
+	{
+		for(auto& shape : shapes)
+		{
+			if (shape->intersectsWith(shp, wnd))
+				return true;
+		}
+		return false;
+	}
+	
 	std::vector<sf::Shape*>* get_shapes()
 	{
 		return &shapes;

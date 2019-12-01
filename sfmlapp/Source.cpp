@@ -27,11 +27,11 @@ int main()
 	// Shapes array.
 	std::vector<sf::Shape*> vshapes;
 
-	sf::Shape* shapes[4];
+	/*sf::Shape* shapes[4];
 	for (auto& shape : shapes)
 	{
 		shape = nullptr;
-	}
+	}*/
 
 	// Pointer to the activated shape.
 	sf::Shape* current_shape = nullptr;
@@ -73,7 +73,7 @@ int main()
 				}
 			}
 
-			// Visualize of remove shapes.
+			// Visualize or remove shapes.
 			else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Num1)
 			{
 				if (!std::count(vshapes.begin(), vshapes.end(), &my_rect))
@@ -260,38 +260,16 @@ int main()
 				}
 				else
 				{
-					// Remove and clean container. Push it's elements to the shapes vector.
-					//if (!container.get_shapes()->empty())
-					//	while (sf::Shape* s = container.get_shapes()->back())
-					//	{
-					//		vshapes.push_back(s);
-					//		container.get_shapes()->pop_back();
-					//	}
 
 					for (auto& shape : *container.get_shapes())
 					{
 						vshapes.push_back(shape);
 					}
 					container.get_shapes()->clear();
-					
+
 					vshapes.erase(std::remove(vshapes.begin(),
 						vshapes.end(), &container), vshapes.end());
 					std::cout << "container removed from the shapes vector" << std::endl;
-
-					//// Remove selected shape from the container.
-					//container.get_shapes()->erase(std::remove(container.get_shapes()->begin(),
-					//	container.get_shapes()->end(), current_shape), container.get_shapes()->end());
-					//std::cout << "Shape removed from the container, added to the shapes vector" << std::endl;
-
-					//// Add selected shape to the shapes vector.
-					//vshapes.push_back(current_shape);
-
-					//if (container.get_shapes()->empty())
-					//{
-					//	vshapes.erase(std::remove(vshapes.begin(),
-					//		vshapes.end(), &container), vshapes.end());
-					//	std::cout << "container removed from the shapes vector" << std::endl;
-					//}
 				}
 			}
 		}
@@ -318,33 +296,16 @@ int main()
 		}
 
 		// Keep moving after reaching window's bound.
-		for (auto& shape : shapes)
+		for (auto& shape : vshapes)
 		{
-			if (shape)
-			{
-				if (shape->getPosition().x < 0)
-				{
-					shape->setPosition(sf::Vector2f(window.getSize().x, shape->getPosition().y));
-				}
-				if (shape->getPosition().x > window.getSize().x)
-				{
-					shape->setPosition(sf::Vector2f(0.0f, shape->getPosition().y));
-				}
-				if (shape->getPosition().y > window.getSize().y)
-				{
-					shape->setPosition(sf::Vector2f(shape->getPosition().x, 0.0f));
-				}
-				if (shape->getPosition().y < 0)
-				{
-					shape->setPosition(sf::Vector2f(shape->getPosition().x, window.getSize().y));
-				}
-			}
+			shape->boundMoveActivate(window);
 		}
 
-		for (auto& shape : shapes)
+		// Deformate when collide.
+		for (auto& shape : vshapes)
 		{
 			if (current_shape && shape && current_shape != shape &&
-				current_shape->getGlobalBounds().intersects(shape->getGlobalBounds()))
+				current_shape->intersectsWith(shape, window))
 			{
 				shape->setScale(1.5f, 1.5f);
 			}
@@ -359,13 +320,6 @@ int main()
 					sf::Mouse::getPosition((window)).y - current_shape->getPosition().y);
 				current_shape->move(total_movement * (1.0f / 60.0f));
 			}
-
-			//else if (container.get_shapes()->capacity() != 0)
-			//{
-			//	sf::Vector2f total_movement(sf::Mouse::getPosition((window)).x - container.getPosition().x,
-			//		sf::Mouse::getPosition((window)).y - container.getPosition().y);
-			//	container.move(total_movement * (1.0f / 60.0f));
-			//}
 		}
 
 		if (show_tail_switch == false)

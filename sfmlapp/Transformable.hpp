@@ -169,7 +169,7 @@ public:
     /// \see setPosition
     ///
     ////////////////////////////////////////////////////////////
-    const Vector2f& getPosition() const;
+    virtual const Vector2f& getPosition() const;
 
     ////////////////////////////////////////////////////////////
     /// \brief get the orientation of the object

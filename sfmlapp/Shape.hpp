@@ -199,10 +199,37 @@ namespace sf
 
 			if (getGlobalBounds().contains(mouse_position))
 				return true;
-			
+
 			return false;
 		}
 
+		virtual void boundMoveActivate(sf::RenderWindow& wnd)
+		{
+			if (getPosition().x < 0)
+			{
+				setPosition(sf::Vector2f(wnd.getSize().x, getPosition().y));
+			}
+			if (getPosition().x > wnd.getSize().x)
+			{
+				setPosition(sf::Vector2f(0.0f, getPosition().y));
+			}
+			if (getPosition().y > wnd.getSize().y)
+			{
+				setPosition(sf::Vector2f(getPosition().x, 0.0f));
+			}
+			if (getPosition().y < 0)
+			{
+				setPosition(sf::Vector2f(getPosition().x, wnd.getSize().y));
+			}
+		}
+
+		virtual bool intersectsWith(sf::Shape* shp, sf::RenderWindow& wnd)
+		{
+			if (getGlobalBounds().intersects(shp->getGlobalBounds()))
+				return true;
+			return false;
+		}
+		
 		////////////////////////////////////////////////////////////
 		/// \brief Get the local bounding rectangle of the entity
 		///
