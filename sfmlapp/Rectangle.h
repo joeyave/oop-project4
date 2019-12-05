@@ -1,6 +1,6 @@
 #pragma once
 //#include <SFML/Graphics.hpp>
-#include "Shape.hpp"
+#include "Shape.h"
 
 class Rectangle : public sf::Shape
 {
@@ -17,9 +17,10 @@ public:
 		update();
 	}
 
-	void setToDefault()
+	virtual void setToDefault()
 	{
 		setSize(sf::Vector2f(100, 100));
+		setScale(1.0f, 1.0f);
 		setFillColor(sf::Color::Blue);
 		setPosition(150, 150);
 		setOrigin(100.0f / 2, 100.0f / 2);

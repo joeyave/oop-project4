@@ -1,6 +1,6 @@
 #pragma once
 //#include <SFML/Graphics.hpp>
-#include "Shape.hpp"
+#include "Shape.h"
 
 class Circle : public sf::Shape
 {
@@ -11,7 +11,7 @@ public:
 		setToDefault();
 		update();
 	}
-	
+
 	Circle(const float rds, const std::size_t pts = 30)
 	{
 		radius = rds;
@@ -22,6 +22,7 @@ public:
 	void setToDefault()
 	{
 		setRadius(200.0f);
+		setScale(1.0f, 1.0f);
 		setFillColor(sf::Color::Magenta);
 		setPosition(1700, 760);
 		setOrigin(200, 200);
@@ -39,12 +40,12 @@ public:
 		return radius;
 	}
 
-	virtual std::size_t getPointCount() const
+	std::size_t getPointCount() const override
 	{
 		return points;
 	}
 
-	virtual sf::Vector2f getPoint(std::size_t index) const
+	sf::Vector2f getPoint(std::size_t index) const override
 	{
 		static const float pi = 3.141592654f;
 
@@ -54,7 +55,7 @@ public:
 
 		return { radius + x, radius + y };
 	}
-	
+
 private:
 	float radius;
 	std::size_t points;

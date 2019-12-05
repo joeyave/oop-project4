@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -26,12 +25,6 @@ int main()
 
 	// Shapes array.
 	std::vector<sf::Shape*> vshapes;
-
-	/*sf::Shape* shapes[4];
-	for (auto& shape : shapes)
-	{
-		shape = nullptr;
-	}*/
 
 	// Pointer to the activated shape.
 	sf::Shape* current_shape = nullptr;
@@ -144,7 +137,7 @@ int main()
 				}
 			}
 
-			// Change colour.
+			// Change color.
 			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::C))
 			{
 				sf::Color color = current_shape->getFillColor();
@@ -188,40 +181,16 @@ int main()
 			// Make invisible.
 			else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::I)
 			{
-				if (current_shape)
-					if (!transparecy_switch)
-					{
-						if (std::count(container.get_shapes()->begin(),
-							container.get_shapes()->end(), current_shape))
-						{
-							container.setAlpha(0);
-						}
-						else
-						{
-							sf::Color color = current_shape->getFillColor();
-							color.a = 0;
-							current_shape->setFillColor(color);
-						}
-
-						transparecy_switch = true;
-					}
-					else
-					{
-						if (std::count(container.get_shapes()->begin(),
-							container.get_shapes()->end(), current_shape))
-						{
-							// make container visible
-							container.setAlpha(255);
-
-						}
-						else
-						{
-							sf::Color color = current_shape->getFillColor();
-							color.a = 255;
-							current_shape->setFillColor(color);
-						}
-						transparecy_switch = false;
-					}
+				if (current_shape && transparecy_switch)
+				{
+					current_shape->setAlpha(255);
+					transparecy_switch = false;
+				}
+				else
+				{
+					current_shape->setAlpha(0);
+					transparecy_switch = true;
+				}
 			}
 
 			// Show tail when move.
@@ -260,7 +229,6 @@ int main()
 				}
 				else
 				{
-
 					for (auto& shape : *container.get_shapes())
 					{
 						vshapes.push_back(shape);
@@ -304,7 +272,7 @@ int main()
 		// Deformate when collide.
 		for (auto& shape : vshapes)
 		{
-			if (current_shape && shape && current_shape != shape &&
+			if (current_shape && current_shape != shape &&
 				current_shape->intersectsWith(shape, window))
 			{
 				shape->setScale(1.5f, 1.5f);

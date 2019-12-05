@@ -6,11 +6,11 @@ class Line : public Rectangle
 public:
 	Line()
 	{
-		setToDefault();
+		Line::setToDefault();
 		update();
 	}
 
-	void setToDefault()
+	void setToDefault() override
 	{
 		setSize(sf::Vector2f(250.0f, 10.0f));
 		setScale(1.0f, 1.0f);

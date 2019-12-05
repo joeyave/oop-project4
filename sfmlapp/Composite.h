@@ -1,8 +1,6 @@
 #pragma once
-//#include "Graphics.hpp"
-#include "Shape.hpp"
+#include "Shape.h"
 #include <SFML/Graphics/RenderTarget.hpp>
-#include <SFML/Window/Mouse.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 
 class Composite : public sf::Shape
@@ -25,25 +23,13 @@ public:
 		update();
 	}
 
-	virtual std::size_t getPointCount() const
-	{
-		for (auto& shape : shapes)
-			return shape->getPointCount();
-	}
-
-	virtual sf::Vector2f getPoint(std::size_t index) const
-	{
-		for (auto& shape : shapes)
-			return shape->getPoint(index);
-	}
-
-	void setFillColor(const sf::Color& color)
+	void setFillColor(const sf::Color& color) override
 	{
 		for (auto& shape : shapes)
 			shape->setFillColor(color);
 	}
 
-	const sf::Color& getFillColor() const
+	const sf::Color& getFillColor() const override
 	{
 		return shapes[0]->getFillColor();
 	}
@@ -103,7 +89,7 @@ public:
 		return &shapes;
 	}
 
-	void setAlpha(sf::Uint8 index)
+	void setAlpha(const sf::Uint8 index) override
 	{
 		std::vector<sf::Color> colors;
 
@@ -129,17 +115,6 @@ public:
 		}
 		return false;
 	}
-	
-	//sf::FloatRect getGlobalBounds() const
-	//{
-	//	std::vector<sf::FloatRect> vglobal_bounds;
-	//	
-	//	for (auto& shape : shapes)
-	//	{
-	//		vglobal_bounds.push_back(shape->getTransform().transformRect(getLocalBounds()));
-	//	}
-	//	
-	//}
 
 	bool selectedWithMouse(sf::RenderWindow& wnd) override
 	{
@@ -152,6 +127,13 @@ public:
 		return false;
 	}
 
+	void setScale(float factorX, float factorY) override
+	{
+		for (auto& shape : shapes)
+		{
+			shape->setScale(factorX, factorY);
+		}
+	}
 private:
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override
 	{
